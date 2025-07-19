@@ -14,7 +14,201 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      admins: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          password_hash: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          password_hash: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          password_hash?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      car_requests: {
+        Row: {
+          admin_notes: string | null
+          body_type: string | null
+          created_at: string
+          email: string
+          engine_size: string | null
+          first_name: string
+          id: string
+          last_name: string
+          make: string
+          max_mileage: number | null
+          max_price: number | null
+          model: string
+          phone: string | null
+          status: string | null
+          transmission: string | null
+          updated_at: string
+          user_id: string | null
+          year: number
+        }
+        Insert: {
+          admin_notes?: string | null
+          body_type?: string | null
+          created_at?: string
+          email: string
+          engine_size?: string | null
+          first_name: string
+          id?: string
+          last_name: string
+          make: string
+          max_mileage?: number | null
+          max_price?: number | null
+          model: string
+          phone?: string | null
+          status?: string | null
+          transmission?: string | null
+          updated_at?: string
+          user_id?: string | null
+          year: number
+        }
+        Update: {
+          admin_notes?: string | null
+          body_type?: string | null
+          created_at?: string
+          email?: string
+          engine_size?: string | null
+          first_name?: string
+          id?: string
+          last_name?: string
+          make?: string
+          max_mileage?: number | null
+          max_price?: number | null
+          model?: string
+          phone?: string | null
+          status?: string | null
+          transmission?: string | null
+          updated_at?: string
+          user_id?: string | null
+          year?: number
+        }
+        Relationships: []
+      }
+      cars: {
+        Row: {
+          body_type: string | null
+          created_at: string
+          dealer_email: string | null
+          dealer_name: string | null
+          dealer_phone: string | null
+          description: string | null
+          engine_size: string | null
+          exterior_color: string | null
+          fuel_type: string | null
+          id: string
+          images: string[] | null
+          interior_color: string | null
+          is_featured: boolean | null
+          is_visible: boolean | null
+          location: string | null
+          make: string
+          mileage: number | null
+          model: string
+          price: number
+          transmission: string | null
+          updated_at: string
+          year: number
+        }
+        Insert: {
+          body_type?: string | null
+          created_at?: string
+          dealer_email?: string | null
+          dealer_name?: string | null
+          dealer_phone?: string | null
+          description?: string | null
+          engine_size?: string | null
+          exterior_color?: string | null
+          fuel_type?: string | null
+          id?: string
+          images?: string[] | null
+          interior_color?: string | null
+          is_featured?: boolean | null
+          is_visible?: boolean | null
+          location?: string | null
+          make: string
+          mileage?: number | null
+          model: string
+          price: number
+          transmission?: string | null
+          updated_at?: string
+          year: number
+        }
+        Update: {
+          body_type?: string | null
+          created_at?: string
+          dealer_email?: string | null
+          dealer_name?: string | null
+          dealer_phone?: string | null
+          description?: string | null
+          engine_size?: string | null
+          exterior_color?: string | null
+          fuel_type?: string | null
+          id?: string
+          images?: string[] | null
+          interior_color?: string | null
+          is_featured?: boolean | null
+          is_visible?: boolean | null
+          location?: string | null
+          make?: string
+          mileage?: number | null
+          model?: string
+          price?: number
+          transmission?: string | null
+          updated_at?: string
+          year?: number
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          first_name: string | null
+          id: string
+          last_name: string | null
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

@@ -22,6 +22,7 @@ const Header = () => {
             <a href="#" className="text-foreground hover:text-primary transition-colors">Sell Your Car</a>
             <a href="#" className="text-foreground hover:text-primary transition-colors">Financing</a>
             <a href="#" className="text-foreground hover:text-primary transition-colors">About</a>
+            <a href="/admin/login" className="text-muted-foreground hover:text-primary transition-colors text-sm">Admin</a>
           </nav>
 
           {/* Desktop Actions */}

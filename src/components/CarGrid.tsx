@@ -1,10 +1,28 @@
+import { useEffect, useState } from "react";
 import CarCard from "./CarCard";
+import { supabase } from "@/integrations/supabase/client";
 import car1 from "@/assets/car-1.jpg";
 import car2 from "@/assets/car-2.jpg";
 import car3 from "@/assets/car-3.jpg";
 import car4 from "@/assets/car-4.jpg";
 
-// Sample car data - in a real app this would come from an API
+interface Car {
+  id: string;
+  make: string;
+  model: string;
+  year: number;
+  price: number;
+  mileage: number;
+  transmission: string;
+  body_type: string;
+  fuel_type: string;
+  location: string;
+  dealer_name: string;
+  is_featured: boolean;
+  is_visible: boolean;
+}
+
+// Keep sample cars as fallback
 const sampleCars = [
   {
     id: "1",
@@ -117,7 +135,69 @@ const CarGrid = ({
   showAll = false,
   limit = 6 
 }: CarGridProps) => {
-  const displayCars = showAll ? sampleCars : sampleCars.slice(0, limit);
+  const [cars, setCars] = useState<Car[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadCars();
+  }, []);
+
+  const loadCars = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("cars")
+        .select("*")
+        .eq("is_visible", true)
+        .order("is_featured", { ascending: false })
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      setCars(data || []);
+    } catch (error) {
+      console.error("Error loading cars:", error);
+      // Use sample data as fallback
+      setCars([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Convert database cars to display format
+  const convertDbCarToDisplayCar = (car: Car, index: number) => {
+    const images = [car1, car2, car3, car4];
+    return {
+      id: car.id,
+      image: images[index % images.length],
+      title: `${car.year} ${car.make} ${car.model}`,
+      year: car.year,
+      make: car.make,
+      model: car.model,
+      price: car.price,
+      mileage: car.mileage,
+      location: car.location || "Toronto, ON",
+      bodyType: car.body_type,
+      transmission: car.transmission,
+      fuelType: car.fuel_type || "Gasoline",
+      isNew: car.year >= 2024,
+      isFeatured: car.is_featured
+    };
+  };
+
+  const dbCars = cars.map(convertDbCarToDisplayCar);
+  const allCars = dbCars.length > 0 ? dbCars : sampleCars;
+  const displayCars = showAll ? allCars : allCars.slice(0, limit);
+
+  if (loading) {
+    return (
+      <section className="py-12">
+        <div className="container mx-auto px-4">
+          <div className="text-center">
+            <div className="animate-pulse">Loading vehicles...</div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-12">
@@ -135,7 +215,7 @@ const CarGrid = ({
         {/* Results Summary */}
         <div className="flex justify-between items-center mb-6">
           <p className="text-muted-foreground">
-            Showing {displayCars.length} of {sampleCars.length} vehicles
+            Showing {displayCars.length} of {allCars.length} vehicles
           </p>
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground">Sort by:</span>
@@ -156,10 +236,10 @@ const CarGrid = ({
         </div>
 
         {/* Load More Button */}
-        {!showAll && sampleCars.length > limit && (
+        {!showAll && allCars.length > limit && (
           <div className="text-center mt-10">
             <button className="px-8 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium">
-              View All Vehicles ({sampleCars.length - limit} more)
+              View All Vehicles ({allCars.length - limit} more)
             </button>
           </div>
         )}
