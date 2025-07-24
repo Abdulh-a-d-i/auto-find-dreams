@@ -167,24 +167,39 @@ const CarGrid = ({
     const images = [car1, car2, car3, car4];
     return {
       id: car.id,
-      image: images[index % images.length],
-      title: `${car.year} ${car.make} ${car.model}`,
-      year: car.year,
       make: car.make,
       model: car.model,
+      year: car.year,
       price: car.price,
       mileage: car.mileage,
-      location: car.location || "Toronto, ON",
-      bodyType: car.body_type,
       transmission: car.transmission,
-      fuelType: car.fuel_type || "Gasoline",
-      isNew: car.year >= 2024,
-      isFeatured: car.is_featured
+      body_type: car.body_type,
+      fuel_type: car.fuel_type || "Gasoline",
+      location: car.location || "Toronto, ON",
+      images: [images[index % images.length]], // Convert to array
+      is_featured: car.is_featured
     };
   };
 
   const dbCars = cars.map(convertDbCarToDisplayCar);
-  const allCars = dbCars.length > 0 ? dbCars : sampleCars;
+  
+  // Convert sample cars to the new format
+  const convertedSampleCars = sampleCars.map(sampleCar => ({
+    id: sampleCar.id,
+    make: sampleCar.make,
+    model: sampleCar.model,
+    year: sampleCar.year,
+    price: sampleCar.price,
+    mileage: sampleCar.mileage,
+    transmission: sampleCar.transmission,
+    body_type: sampleCar.bodyType,
+    fuel_type: sampleCar.fuelType,
+    location: sampleCar.location,
+    images: [sampleCar.image],
+    is_featured: sampleCar.isFeatured
+  }));
+
+  const allCars = dbCars.length > 0 ? dbCars : convertedSampleCars;
   const displayCars = showAll ? allCars : allCars.slice(0, limit);
 
   if (loading) {
@@ -231,7 +246,7 @@ const CarGrid = ({
         {/* Car Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {displayCars.map((car) => (
-            <CarCard key={car.id} {...car} />
+            <CarCard key={car.id} car={car} />
           ))}
         </div>
 

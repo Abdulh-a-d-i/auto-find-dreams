@@ -3,18 +3,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { toast } from "sonner";
+import { Switch } from "@/components/ui/switch";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { Plus, X, Upload } from "lucide-react";
 
-interface AddCarFormProps {
-  onSuccess: () => void;
-}
-
-export function AddCarForm({ onSuccess }: AddCarFormProps) {
+const AddCarForm = ({ onCarAdded }: { onCarAdded: () => void }) => {
+  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const [newImageUrl, setNewImageUrl] = useState("");
   const [formData, setFormData] = useState({
     make: "",
     model: "",
@@ -28,43 +29,50 @@ export function AddCarForm({ onSuccess }: AddCarFormProps) {
     exterior_color: "",
     interior_color: "",
     description: "",
-    is_featured: false,
-    is_visible: true,
     dealer_name: "Japs Motors",
     dealer_phone: "(555) 123-4567",
     dealer_email: "sales@japsmotors.com",
-    location: "Toronto, ON"
+    location: "Toronto, ON",
+    is_featured: false,
+    is_visible: true,
   });
+
+  const addImageUrl = () => {
+    if (newImageUrl.trim() && !imageUrls.includes(newImageUrl.trim())) {
+      setImageUrls([...imageUrls, newImageUrl.trim()]);
+      setNewImageUrl("");
+    }
+  };
+
+  const removeImageUrl = (index: number) => {
+    setImageUrls(imageUrls.filter((_, i) => i !== index));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const { error } = await supabase.from("cars").insert({
-        make: formData.make,
-        model: formData.model,
+      const carData = {
+        ...formData,
         year: parseInt(formData.year),
         price: parseFloat(formData.price),
         mileage: formData.mileage ? parseInt(formData.mileage) : null,
-        transmission: formData.transmission,
-        body_type: formData.body_type,
-        fuel_type: formData.fuel_type,
-        engine_size: formData.engine_size,
-        exterior_color: formData.exterior_color,
-        interior_color: formData.interior_color,
-        description: formData.description,
-        is_featured: formData.is_featured,
-        is_visible: formData.is_visible,
-        dealer_name: formData.dealer_name,
-        dealer_phone: formData.dealer_phone,
-        dealer_email: formData.dealer_email,
-        location: formData.location
-      });
+        images: imageUrls,
+      };
+
+      const { error } = await supabase
+        .from('cars')
+        .insert([carData]);
 
       if (error) throw error;
 
-      toast.success("Car added successfully!");
+      toast({
+        title: "Success",
+        description: "Car added successfully",
+      });
+
+      // Reset form
       setFormData({
         make: "",
         model: "",
@@ -78,16 +86,21 @@ export function AddCarForm({ onSuccess }: AddCarFormProps) {
         exterior_color: "",
         interior_color: "",
         description: "",
-        is_featured: false,
-        is_visible: true,
         dealer_name: "Japs Motors",
         dealer_phone: "(555) 123-4567",
         dealer_email: "sales@japsmotors.com",
-        location: "Toronto, ON"
+        location: "Toronto, ON",
+        is_featured: false,
+        is_visible: true,
       });
-      onSuccess();
-    } catch (error) {
-      toast.error("Failed to add car");
+      setImageUrls([]);
+      onCarAdded();
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
     } finally {
       setLoading(false);
     }
@@ -254,20 +267,73 @@ export function AddCarForm({ onSuccess }: AddCarFormProps) {
             />
           </div>
 
+          {/* Image URLs Section */}
+          <div className="space-y-4">
+            <Label>Car Images</Label>
+            <div className="space-y-2">
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Enter image URL"
+                  value={newImageUrl}
+                  onChange={(e) => setNewImageUrl(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      addImageUrl();
+                    }
+                  }}
+                />
+                <Button type="button" onClick={addImageUrl} size="sm">
+                  <Plus className="h-4 w-4" />
+                  Add
+                </Button>
+              </div>
+              
+              {imageUrls.length > 0 && (
+                <div className="space-y-2">
+                  <Label className="text-sm text-muted-foreground">Added Images:</Label>
+                  <div className="grid gap-2">
+                    {imageUrls.map((url, index) => (
+                      <div key={index} className="flex items-center gap-2 p-2 border rounded">
+                        <img 
+                          src={url} 
+                          alt={`Preview ${index + 1}`}
+                          className="w-12 h-12 object-cover rounded"
+                          onError={(e) => {
+                            e.currentTarget.src = "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=100&h=100&fit=crop";
+                          }}
+                        />
+                        <span className="flex-1 text-sm truncate">{url}</span>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => removeImageUrl(index)}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
-              <Checkbox
+              <Switch
                 id="is_featured"
                 checked={formData.is_featured}
-                onCheckedChange={(checked) => handleInputChange("is_featured", checked as boolean)}
+                onCheckedChange={(checked) => handleInputChange("is_featured", checked)}
               />
               <Label htmlFor="is_featured">Featured car</Label>
             </div>
             <div className="flex items-center space-x-2">
-              <Checkbox
+              <Switch
                 id="is_visible"
                 checked={formData.is_visible}
-                onCheckedChange={(checked) => handleInputChange("is_visible", checked as boolean)}
+                onCheckedChange={(checked) => handleInputChange("is_visible", checked)}
               />
               <Label htmlFor="is_visible">Visible on website</Label>
             </div>
@@ -280,4 +346,6 @@ export function AddCarForm({ onSuccess }: AddCarFormProps) {
       </CardContent>
     </Card>
   );
-}
+};
+
+export default AddCarForm;

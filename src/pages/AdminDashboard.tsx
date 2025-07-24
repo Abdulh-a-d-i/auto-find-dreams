@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Car, Users, FileText, Plus, LogOut, Settings } from "lucide-react";
 import { AdminSidebar } from "@/components/AdminSidebar";
 import { CarsList } from "@/components/admin/CarsList";
-import { AddCarForm } from "@/components/admin/AddCarForm";
+import AddCarForm from "@/components/admin/AddCarForm";
 import { RequestsList } from "@/components/admin/RequestsList";
 import { AdminsList } from "@/components/admin/AdminsList";
 
@@ -135,7 +135,7 @@ export default function AdminDashboard() {
         )}
 
         {activeTab === "cars" && <CarsList onStatsUpdate={loadStats} />}
-        {activeTab === "add-car" && <AddCarForm onSuccess={loadStats} />}
+        {activeTab === "add-car" && <AddCarForm onCarAdded={loadStats} />}
         {activeTab === "requests" && <RequestsList />}
         {activeTab === "admins" && <AdminsList />}
       </div>
