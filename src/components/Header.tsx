@@ -6,6 +6,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import FindMyCarForm from "./FindMyCarForm";
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -43,6 +44,7 @@ const Header = () => {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-4">
+            {user && <FindMyCarForm />}
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -89,6 +91,11 @@ const Header = () => {
               <a href="#" className="text-foreground hover:text-primary transition-colors">Financing</a>
               <a href="#" className="text-foreground hover:text-primary transition-colors">About</a>
               <div className="flex flex-col space-y-2 pt-4 border-t border-border">
+                {user && (
+                  <div className="pb-2">
+                    <FindMyCarForm />
+                  </div>
+                )}
                 {user ? (
                   <>
                     <Button variant="outline" size="sm" onClick={() => navigate("/my-requests")}>

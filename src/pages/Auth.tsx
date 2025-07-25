@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { Car } from "lucide-react";
+import { useEffect } from "react";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -20,8 +21,20 @@ const Auth = () => {
   const [otp, setOtp] = useState("");
   const [step, setStep] = useState<"signup" | "verify" | "complete">("signup");
   const [loading, setLoading] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Countdown timer for resend OTP
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (resendCooldown > 0) {
+      timer = setInterval(() => {
+        setResendCooldown(prev => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [resendCooldown]);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,10 +58,11 @@ const Auth = () => {
       if (error) throw error;
 
       toast({
-        title: "Verification email sent",
-        description: "Please check your email and enter the verification code below.",
+        title: "6-digit code sent",
+        description: "Please check your email and enter the verification code below. It expires in 5 minutes.",
       });
       setStep("verify");
+      setResendCooldown(300); // 5 minutes cooldown
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -131,6 +145,33 @@ const Auth = () => {
     }
   };
 
+  const handleResendOtp = async () => {
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: email,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "New code sent",
+        description: "A new 6-digit code has been sent to your email.",
+      });
+      setResendCooldown(300); // 5 minutes cooldown
+      setOtp(""); // Clear current OTP input
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Resend failed",
+        description: error.message,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (step === "verify") {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex items-center justify-center p-4">
@@ -161,14 +202,28 @@ const Auth = () => {
               <Button type="submit" className="w-full" disabled={loading || otp.length !== 6}>
                 {loading ? "Verifying..." : "Verify Email"}
               </Button>
-              <Button 
-                type="button" 
-                variant="outline" 
-                className="w-full"
-                onClick={() => setStep("signup")}
-              >
-                Back to Signup
-              </Button>
+              <div className="flex gap-2">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={() => setStep("signup")}
+                >
+                  Back to Signup
+                </Button>
+                <Button 
+                  type="button" 
+                  variant="ghost" 
+                  className="flex-1"
+                  onClick={handleResendOtp}
+                  disabled={loading || resendCooldown > 0}
+                >
+                  {resendCooldown > 0 
+                    ? `Resend (${Math.floor(resendCooldown / 60)}:${String(resendCooldown % 60).padStart(2, '0')})` 
+                    : "Resend Code"
+                  }
+                </Button>
+              </div>
             </form>
           </CardContent>
         </Card>

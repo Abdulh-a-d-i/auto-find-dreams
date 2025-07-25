@@ -2,6 +2,7 @@ import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import SearchFilters from "@/components/SearchFilters";
 import CarGrid from "@/components/CarGrid";
+import RecommendedCars from "@/components/RecommendedCars";
 import Footer from "@/components/Footer";
 
 const Index = () => {
@@ -15,6 +16,9 @@ const Index = () => {
         <SearchFilters />
         <CarGrid />
       </main>
+      
+      {/* Recommended Cars Section */}
+      <RecommendedCars />
       
       <Footer />
     </div>
